@@ -10,12 +10,12 @@
         <div>
             {% if not user.is_authenticated %}
                 <a href="{% url 'login' %}">Log in</a>
-                <a href="{% url 'register' %}">Register</a>
+                <a href="{% url 'register-user' %}">Register</a>
             {% else %}
                 {% if request.user|has_group:"Doctor" %}
                     {{ user.first_name }} {{ user.last_name }}
                     <a href="{% url 'doctor-appointment-list' user.pk %}">Appointments</a>
-                    <a href="{% url 'register' %}">New Patient</a>
+                    <a href="{% url 'register-user' %}">New Patient</a>
                     <a href="{% url 'patient-list' %}">Patients</a>
                     <a href="{% url 'doctor-list' %}">Doctors</a>
                     <a href="{% url 'room-list' %}">Rooms</a>

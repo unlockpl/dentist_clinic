@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render
 from django.views import View
@@ -34,20 +35,38 @@ class UserLogoutView(LogoutView):
     next_page = 'home'
 
 
-class RegisterView(CreateView):
+class UserFormView(View):
     pass
 
 
-class DoctorListView(View):
+class UserDataFormView(View):
     pass
 
 
-class PatientListView(View):
-    pass
+class DoctorListView(ListView):
+    model = UserData
+    template_name = 'lists/doctor-list.html'
+    paginate_by = 50
+
+    def get_queryset(self):
+        return UserData.objects.filter(user__groups=Group.objects.filter(name='Doctor').first())\
+            .order_by('user__last_name')
 
 
-class RoomListView(View):
-    pass
+class PatientListView(ListView):
+    model = UserData
+    template_name = 'lists/patient-list.html'
+    paginate_by = 50
+
+    def get_queryset(self):
+        return UserData.objects.filter(user__groups=Group.objects.filter(name='Patient').first())\
+            .order_by('user__last_name')
+
+
+class RoomListView(ListView):
+    model = Room
+    template_name = 'lists/room-list.html'
+    paginate_by = 50
 
 
 class AppointmentListByPatientView(View):
@@ -58,7 +77,7 @@ class AppointmentListByDoctorView(View):
     pass
 
 
-class AppointmentListByRoom(View):
+class AppointmentListByRoomView(View):
     pass
 
 

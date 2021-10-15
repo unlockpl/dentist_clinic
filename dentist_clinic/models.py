@@ -29,5 +29,5 @@ class UserData(models.Model):
     phone = models.CharField(max_length=32)
     address = models.TextField()
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    appointments = models.ForeignKey(Appointment, on_delete=models.CASCADE, blank=True)
+    appointments = models.ForeignKey(Appointment, on_delete=models.CASCADE, blank=True, null=True)
     patient_histories = models.ManyToManyField(PatientHistory, blank=True)
