@@ -30,4 +30,4 @@ class UserData(models.Model):
     address = models.TextField()
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     appointments = models.ForeignKey(Appointment, on_delete=models.CASCADE)
-    patient_histories = models.ForeignKey(PatientHistory, on_delete=models.CASCADE)
+    patient_histories = models.ManyToManyField(PatientHistory)
