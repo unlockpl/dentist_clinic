@@ -15,25 +15,30 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from dentist_clinic.views import AboutContactView, AppointmentDeleteView, AppointmentFormView, AppointmentListByDoctorView, AppointmentListByPatientView, AppointmentListByRoomView, AppointmentUpdateView, DoctorListView, HomeView, PatientListView, RoomListView, UserDataFormView, UserFormView, UserLoginView, UserLogoutView
+from dentist_clinic.views import AboutContactView, AppointmentDeleteView, AppointmentFormView, AppointmentListByDoctorView, AppointmentListByPatientView, AppointmentListByRoomView, AppointmentUpdateView, DoctorHistoryListView, DoctorListView, HomeView, PatientHistoryDeleteView, PatientHistoryDetailView, PatientHistoryFormView, PatientHistoryListView, PatientHistoryUpdateView, PatientListView, RoomListView, UserFormView, UserLoginView, UserLogoutView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HomeView.as_view(), name='home'),
     path('login/', include('django.contrib.auth.urls')),
-    path('login/', UserLoginView.as_view(), name='login'),
-    path('logout/', UserLogoutView.as_view(), name='logout'),
+    path('login/', UserLoginView.as_view(), name='login-user'),
+    path('logout/', UserLogoutView.as_view(), name='logout-user'),
     path('register/user', UserFormView.as_view(), name='register-user'),
-    path('register/userdata', UserDataFormView.as_view(), name='register-user-data'),
     path('about-contact/', AboutContactView.as_view(), name='about-contact'),
     path('patient/<int:pk>/appointments/new/', AppointmentFormView.as_view(), name='appointment-form'),
     path('patient/<int:pk>/appointments/', AppointmentListByPatientView.as_view(), name='appointment-list-by-patient'),
     path('doctor/<int:pk>/appointments/', AppointmentListByDoctorView.as_view(), name='appointment-list-by-doctor'),
     path('room/<int:pk>/appointments/', AppointmentListByRoomView.as_view(), name='appointment-list-by-room'),
+    path('patient/<int:pk>/history/new/', PatientHistoryFormView.as_view(), name='patient-history-form'),
+    path('patient/<int:pk>/history/', PatientHistoryListView.as_view(), name='patient-history-list'),
+    path('doctor/<int:pk>/history/', DoctorHistoryListView.as_view(), name='doctor-history-list'),
     path('doctors/', DoctorListView.as_view(), name='doctor-list'),
     path('patients/', PatientListView.as_view(), name='patient-list'),
     path('rooms/', RoomListView.as_view(), name='room-list'),
     path('appointment/<int:pk>/update/', AppointmentUpdateView.as_view(), name='appointment-update'),
     path('appointment/<int:pk>/delete/', AppointmentDeleteView.as_view(), name='appointment-delete'),
+    path('history/<int:pk>/update/', PatientHistoryUpdateView.as_view(), name='patient-history-update'),
+    path('history/<int:pk>/delete/', PatientHistoryDeleteView.as_view(), name='patient-history-delete'),
+    path('history/<int:pk>/details/', PatientHistoryDetailView.as_view(), name='patient-history-details'),
 
 ]
