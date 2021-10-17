@@ -5,7 +5,7 @@
             <tr>
                 <td>{{ item.name }}</td>
                 <td>
-                    <a href="{% url 'room-appointment-list' pk=item.pk %}">Appointments</a>
+                    <a href="{% url 'appointment-list-by-room' pk=item.pk %}">Appointments</a>
                 </td>
             </tr>
         {% endfor %}

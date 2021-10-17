@@ -9,7 +9,7 @@
                 <td>{{ item.phone }}</td>
                 <td>{{ item.address }}</td>
                 <td>
-                    <a href="{% url 'doctor-appointment-list' pk=item.user.pk %}">Appointments</a>
+                    <a href="{% url 'appointment-list-by-doctor' pk=item.user.pk %}">Appointments</a>
                 </td>
             </tr>
         {% endfor %}

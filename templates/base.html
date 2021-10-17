@@ -14,15 +14,15 @@
             {% else %}
                 {% if request.user|has_group:"Doctor" %}
                     {{ user.first_name }} {{ user.last_name }}
-                    <a href="{% url 'doctor-appointment-list' user.pk %}">Appointments</a>
+                    <a href="{% url 'appointment-list-by-doctor' user.pk %}">Appointments</a>
                     <a href="{% url 'register-user' %}">New Patient</a>
                     <a href="{% url 'patient-list' %}">Patients</a>
                     <a href="{% url 'doctor-list' %}">Doctors</a>
                     <a href="{% url 'room-list' %}">Rooms</a>
                     <a href="{% url 'logout' %}">Log out</a>
-                {% else %}
+                {% elif request.user|has_group:"Patient" %}
                     {{ user.first_name }} {{ user.last_name }}
-                    <a href="{% url 'patient-appointment-list' user.pk %}">Appointments</a>
+                    <a href="{% url 'appointment-list-by-patient' user.pk %}">Appointments</a>
                     <a href="{% url 'appointment-form' user.pk %}">New Appointment</a>
                     <a href="{% url 'logout' %}">Log out</a>
                 {% endif %}
