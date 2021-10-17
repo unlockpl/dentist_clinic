@@ -1,19 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
+    <h2>{{ title }}</h2>
     <table>
         {% for item in object_list %}
             <thead>
                 <tr>
-                    <td>Date</td>
-                    <td>Room</td>
-                    <td>Doctor</td>
-                    <td>Procedure</td>
+                    <th>Date</th>
+                    <th>Room</th>
+                    <th>Doctor</th>
+                    <th>Patient</th>
+                    <th>Procedure</th>
                 </tr>
             </thead>
             <tr>
                 <td>{{ item.date }}</td>
                 <td>{{ item.room.name }}</td>
                 <td>{{ item.doctor.first_name }} {{ item.doctor.last_name }}</td>
+                <td>{{ item.patient.first_name }} {{ item.patient.last_name }}</td>
                 <td>{{ item.procedure.name }}</td>
                 <td>
                     <a href="{% url 'appointment-update' item.pk %}">Update</a>

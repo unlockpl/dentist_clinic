@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
+    <h2>List of patients</h2>
     <table>
+        <tr>
+            <th>First name}</th>
+            <th>Last name</th>
+            <th>E-mail address</th>
+            <th>Phone number</th>
+            <th>Address</th>
+        </tr>
         {% for item in object_list %}
             <tr>
                 <td>{{ item.user.first_name }}</td>
@@ -10,6 +18,9 @@
                 <td>{{ item.address }}</td>
                 <td>
                     <a href="{% url 'appointment-list-by-patient' pk=item.user.pk %}">Appointments</a>
+                </td>
+                <td>
+                    <a href="{% url 'patient-history-list' pk=item.user.pk %}">History</a>
                 </td>
             </tr>
         {% endfor %}

@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
+    <h2>List of rooms</h2>
     <table>
+        <thead>
+            <tr>
+                <th>Room name</th>
+            </tr>
+        </thead>
         {% for item in object_list %}
             <tr>
                 <td>{{ item.name }}</td>
