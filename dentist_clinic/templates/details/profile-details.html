@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Profile details{% endblock %}
+{% block content %}
+    <h2>Your profile</h2>
+    <table class="blueTable">
+            <tr>
+                <th>username</th>
+                <td>{{ user.username }}</td>
+            </tr>
+            <tr>
+                <th>Full name</th>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+            </tr>
+            <tr>
+                <th>E-mail address</th>
+                <td>{{ user.email }}</td>
+            </tr>
+            <tr>
+                <th>Phone number</th>
+                <td>{{ user_data.phone }}</td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td>{{ user_data.address }}</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{% url 'update-user' %}" class="blueButton">Update</a>
+                </td>
+            </tr>
+    </table>
+
+{% endblock %}

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 
-    <title>Dentist Clinic</title>
+    <title>{% block title %}Dentist Clinic{% endblock %}</title>
 </head>
 <body>
     <header>
@@ -29,7 +29,8 @@
                     <a href="{% url 'room-list' %}" class="myButton">Rooms</a>
                     <a href="{% url 'doctor-history-list' user.pk %}" class="myButton">Patient histories</a>
                     <div style="display: flex; justify-content: flex-end">
-                        <h6>Logged user: {{ user.first_name }} {{ user.last_name }} </h6>
+                        <h6>Logged user: {{ user.first_name }} {{ user.last_name }}</h6>
+                        <a href="{% url 'profile-user' %}" class="myButton">Your profile</a>
                         <a href="{% url 'logout-user' %}" class="myButton">Log out</a>
                     </div>
                 {% elif request.user|has_group:"Patient" %}
@@ -38,6 +39,7 @@
                     <a href="{% url 'patient-history-list' user.pk %}" class="myButton">Patient history</a>
                     <div style="display: flex; justify-content: flex-end">
                         <h6>Logged user: {{ user.first_name }} {{ user.last_name }} </h6>
+                        <a href="{% url 'profile-user' %}" class="myButton">Your profile</a>
                         <a href="{% url 'logout-user' %}" class="myButton">Log out</a>
                     </div>
                 {% endif %}

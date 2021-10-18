@@ -1,12 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, FormView, ListView, UpdateView
+from django.contrib import messages
 
 from dentist_clinic.models import Appointment, PatientHistory, Procedure, Room, UserData
+from dentist_clinic.forms import UserDataModelForm, UserModelForm
 
 
 # Create your views here.
@@ -14,11 +16,6 @@ from dentist_clinic.models import Appointment, PatientHistory, Procedure, Room, 
 class DoctorUserMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return self.request.user.groups.filter(name='Doctor').exists()
-
-
-class PatientUserMixin(LoginRequiredMixin, UserPassesTestMixin):
-    def test_func(self):
-        return self.request.user.groups.filter(name='Patient').exists()
 
 
 class HomeView(View):
@@ -29,7 +26,7 @@ class HomeView(View):
 class AboutContactView(ListView):
     model = UserData
     template_name = 'lists/about-contact.html'
-    paginate_by = 50
+    paginate_by = 5
 
     def get_queryset(self):
         return UserData.objects.filter(user__groups=Group.objects.get(name='Doctor'))\
@@ -47,7 +44,26 @@ class UserLogoutView(LogoutView):
 
 
 class UserFormView(View):
-    pass
+    def get(self, request):
+        context = {
+            'userform': UserModelForm,
+            'userdataform': UserDataModelForm
+        }
+        return render(request, 'forms/profile-form.html', context)
+
+    def post(self, request):
+        user = UserModelForm(request.POST)
+        user_data = UserDataModelForm(request.POST)
+
+        if user.is_valid() and user_data.is_valid():
+            user.save()
+            user_data.user = user
+            user_data.save()
+            messages.success(request, "OK")
+        else:
+            messages.error(request, "error")
+
+        return redirect('home')
 
 
 class AppointmentFormView(View):
@@ -61,7 +77,7 @@ class PatientHistoryFormView(View):
 class DoctorListView(DoctorUserMixin, ListView):
     model = UserData
     template_name = 'lists/doctor-list.html'
-    paginate_by = 50
+    paginate_by = 5
 
     def get_queryset(self):
         return UserData.objects.filter(user__groups=Group.objects.get(name='Doctor'))\
@@ -71,7 +87,7 @@ class DoctorListView(DoctorUserMixin, ListView):
 class PatientListView(DoctorUserMixin, ListView):
     model = UserData
     template_name = 'lists/patient-list.html'
-    paginate_by = 50
+    paginate_by = 5
 
     def get_queryset(self):
         return UserData.objects.filter(user__groups=Group.objects.get(name='Patient'))\
@@ -81,18 +97,18 @@ class PatientListView(DoctorUserMixin, ListView):
 class RoomListView(DoctorUserMixin, ListView):
     model = Room
     template_name = 'lists/room-list.html'
-    paginate_by = 50
+    paginate_by = 5
 
 
 class AppointmentListByPatientView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Appointment
     template_name = 'lists/appointment-list.html'
-    paginate_by = 50
+    paginate_by = 5
 
     def get_context_data(self, **kwargs):
         context = super(AppointmentListByPatientView, self).get_context_data(**kwargs)
         patient = User.objects.get(pk=self.kwargs['pk'])
-        context['title'] = f"Appointments of patient {patient.first_name} {patient.last_name}"
+        context['header'] = f"Appointments of patient {patient.first_name} {patient.last_name}"
         return context
 
     def get_queryset(self):
@@ -105,12 +121,12 @@ class AppointmentListByPatientView(LoginRequiredMixin, UserPassesTestMixin, List
 class AppointmentListByDoctorView(DoctorUserMixin, ListView):
     model = Appointment
     template_name = 'lists/appointment-list.html'
-    paginate_by = 50
+    paginate_by = 5
 
     def get_context_data(self, **kwargs):
         context = super(AppointmentListByDoctorView, self).get_context_data(**kwargs)
         doctor = User.objects.get(pk=self.kwargs['pk'])
-        context['title'] = f"Appointments of doctor {doctor.first_name} {doctor.last_name}"
+        context['header'] = f"Appointments of doctor {doctor.first_name} {doctor.last_name}"
         return context
 
     def get_queryset(self):
@@ -120,11 +136,11 @@ class AppointmentListByDoctorView(DoctorUserMixin, ListView):
 class AppointmentListByRoomView(DoctorUserMixin, ListView):
     model = Appointment
     template_name = 'lists/appointment-list.html'
-    paginate_by = 50
+    paginate_by = 5
 
     def get_context_data(self, **kwargs):
         context = super(AppointmentListByRoomView, self).get_context_data(**kwargs)
-        context['title'] = f"Appointments in room {Room.objects.get(pk=self.kwargs['pk'])}"
+        context['header'] = f"Appointments in room {Room.objects.get(pk=self.kwargs['pk'])}"
         return context
 
     def get_queryset(self):
@@ -134,12 +150,12 @@ class AppointmentListByRoomView(DoctorUserMixin, ListView):
 class PatientHistoryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = PatientHistory
     template_name = 'lists/history-list.html'
-    paginate_by = 50
+    paginate_by = 5
 
     def get_context_data(self, **kwargs):
         context = super(PatientHistoryListView, self).get_context_data(**kwargs)
         patient = User.objects.get(pk=self.kwargs['pk'])
-        context['title'] = f"Patient history of {patient.first_name} {patient.last_name}"
+        context['header'] = f"Patient history of {patient.first_name} {patient.last_name}"
         return context
 
     def get_queryset(self):
@@ -152,12 +168,12 @@ class PatientHistoryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 class DoctorHistoryListView(DoctorUserMixin, ListView):
     model = PatientHistory
     template_name = 'lists/history-list.html'
-    paginate_by = 50
+    paginate_by = 5
 
     def get_context_data(self, **kwargs):
         context = super(DoctorHistoryListView, self).get_context_data(**kwargs)
         doctor = User.objects.get(pk=self.kwargs['pk'])
-        context['title'] = f"Patient histories written by {doctor.first_name} {doctor.last_name}"
+        context['header'] = f"Patient histories written by {doctor.first_name} {doctor.last_name}"
         return context
 
     def get_queryset(self):
@@ -165,6 +181,7 @@ class DoctorHistoryListView(DoctorUserMixin, ListView):
 
 
 class AppointmentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+
     def test_func(self):
         appointment = Appointment.objects.get(pk=self.kwargs['pk'])
         return self.request.user.groups.filter(name='Doctor').exists() or self.request.user == appointment.patient
@@ -173,7 +190,7 @@ class AppointmentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
 class AppointmentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Appointment
     success_url = reverse_lazy('home')
-    template_name = 'home.html'
+    template_name = 'delete.html'
 
     def test_func(self):
         appointment = Appointment.objects.get(pk=self.kwargs['pk'])
@@ -187,21 +204,28 @@ class PatientHistoryUpdateView(DoctorUserMixin, UpdateView):
 class PatientHistoryDeleteView(DoctorUserMixin, DeleteView):
     model = PatientHistory
     success_url = reverse_lazy('home')
-    template_name = 'home.html'
+    template_name = 'delete.html'
 
 
 class PatientHistoryDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = PatientHistory
-    template_name = 'history-details.html'
+    template_name = 'details/history-details.html'
 
     def test_func(self):
         history = PatientHistory.objects.get(pk=self.kwargs['pk'])
         return self.request.user.groups.filter(name='Doctor').exists() or self.request.user == history.patient
 
 
-class UserUpdateView(View):
+class UserUpdateView(LoginRequiredMixin, View):
     pass
 
 
-class UserDetailView(View):
-    pass
+class UserDetailView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = self.request.user
+        user_data = UserData.objects.get(user=user)
+        context = {
+            'user': user,
+            'user_data': user_data
+        }
+        return render(request, 'details/profile-details.html', context)

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Register user{% endblock %}
+{% block content %}
+    <table class="blueTable">
+        <form method="post">
+            {% csrf_token %}
+            {{ userform.as_table }}
+            {{ userdataform.as_table }}
+            <tr>
+                <td><input type="submit" value="Submit"></td>
+            </tr>
+        </form>
+    </table>
+    {% for message in messages %}
+        <p>{{message}}</p>
+    {% endfor %}
+{% endblock %}

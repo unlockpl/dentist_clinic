@@ -51,6 +51,7 @@ table.blueTable tfoot {
 
 table.blueTable tfoot td {
     font-size: 14px;
+    color: black;
 }
 
 table.blueTable tfoot .links {
@@ -99,7 +100,7 @@ p {
 .myButton {
     box-shadow: inset 0px 1px 0px 0px #54a3f7;
     background: #007dc1 linear-gradient(to bottom, #007dc1 5%, #0061a7 100%);
-    border-radius: 10px;
+    border-radius: 12px;
     border: 3px solid #124d77;
     display: inline-block;
     cursor: pointer;
@@ -119,4 +120,54 @@ p {
     position: relative;
     top: 1px;
 }
+
+
+.blueButton {
+    box-shadow: inset 0px 1px 0px 0px #97c4fe;
+    background: #3d94f6 linear-gradient(to bottom, #3d94f6 5%, #1e62d0 100%);
+    border-radius: 6px;
+    border: 1px solid #337fed;
+    display: inline-block;
+    cursor: pointer;
+    color: #ffffff;
+    font-family: Arial;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 6px 24px;
+    text-decoration: none;
+    text-shadow: 0px 1px 0px #1570cd;
+}
+
+.blueButton:hover {
+    background: #1e62d0 linear-gradient(to bottom, #1e62d0 5%, #3d94f6 100%);
+}
+
+.blueButton:active {
+    position: relative;
+    top: 1px;
+}
+
+.redButton {
+	box-shadow:inset 0px 1px 0px 0px #f5978e;
+    background: #f24537 linear-gradient(to bottom, #f24537 5%, #c62d1f 100%);
+    border-radius:6px;
+	border:1px solid #d02718;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #810e05;
+}
+.redButton:hover {
+    background: #c62d1f linear-gradient(to bottom, #c62d1f 5%, #f24537 100%);
+}
+.redButton:active {
+	position:relative;
+	top:1px;
+}
+
 

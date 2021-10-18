@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load auth_extras %}
+{% block title %}List of patient histories{% endblock %}
 {% block content %}
-    <h2>{{ title }}</h2>
-    <table>
+    <h2>{{ header }}</h2>
+    <table class="blueTable">
         <thead>
             <tr>
                 <th>Creation time</th>
@@ -16,18 +17,39 @@
                 <td>{{ item.doctor.first_name }} {{ item.doctor.last_name }}</td>
                 <td>{{ item.patient.first_name }} {{ item.patient.last_name }}</td>
                 <td>
-                    <a href="{% url 'patient-history-details' pk=item.pk %}">Details</a>
+                    <a href="{% url 'patient-history-details' pk=item.pk %}" class="blueButton">Details</a>
                 </td>
                 {% if request.user|has_group:"Doctor" %}
                     <td>
-                        <a href="{% url 'patient-history-update' pk=item.pk %}">Update</a>
+                        <a href="{% url 'patient-history-update' pk=item.pk %}" class="blueButton">Update</a>
                     </td>
                     <td>
-                        <a href="{% url 'patient-history-delete' pk=item.pk %}">Delete</a>
+                        <a href="{% url 'patient-history-delete' pk=item.pk %}" class="redButton">Delete</a>
                     </td>
 
                 {% endif %}
             </tr>
         {% endfor %}
+        {% if is_paginated %}
+            <tfoot>
+                <tr>
+                    <td>
+                        <div class="links">
+                                <span>
+                                    {% if page_obj.has_previous %}
+                                        <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">previous</a>
+                                    {% endif %}
+                                    <span>
+                                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                                    </span>
+                                    {% if page_obj.has_next %}
+                                        <a href="{{ request.path }}?page={{ page_obj.next_page_number }}">next</a>
+                                    {% endif %}
+                                </span>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        {% endif %}
     </table>
 {% endblock %}

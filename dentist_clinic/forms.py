@@ -9,14 +9,16 @@ class UserModelForm(forms.ModelForm):
         fields = (
             'username',
             'password',
+            'email',
             'first_name',
-            'last_name'
+            'last_name',
         )
         labels = {
             'username': 'Username',
             'password': 'Password',
+            'email': 'E-mail address',
             'first_name': 'First name',
-            'last_name': 'Last name'
+            'last_name': 'Last name',
         }
 
 

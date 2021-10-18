@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
+{% block title %}List of appointments{% endblock %}
 {% block content %}
-    <h2>{{ title }}</h2>
-    <table>
+    <h2>{{ header }}</h2>
+    <table class="blueTable">
         {% for item in object_list %}
             <thead>
                 <tr>
@@ -19,12 +20,33 @@
                 <td>{{ item.patient.first_name }} {{ item.patient.last_name }}</td>
                 <td>{{ item.procedure.name }}</td>
                 <td>
-                    <a href="{% url 'appointment-update' item.pk %}">Update</a>
+                    <a href="{% url 'appointment-update' item.pk %}" class="blueButton">Update</a>
                 </td>
                 <td>
-                    <a href="{% url 'appointment-delete' item.pk %}">Delete</a>
+                    <a href="{% url 'appointment-delete' item.pk %}" class="redButton">Delete</a>
                 </td>
             </tr>
         {% endfor %}
+        {% if is_paginated %}
+            <tfoot>
+                <tr>
+                    <td>
+                        <div class="links">
+                                <span>
+                                    {% if page_obj.has_previous %}
+                                        <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">previous</a>
+                                    {% endif %}
+                                    <span>
+                                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                                    </span>
+                                    {% if page_obj.has_next %}
+                                        <a href="{{ request.path }}?page={{ page_obj.next_page_number }}">next</a>
+                                    {% endif %}
+                                </span>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        {% endif %}
     </table>
 {% endblock %}
