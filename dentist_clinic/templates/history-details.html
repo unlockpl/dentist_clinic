@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <h2>Patient history</h2>
+    <table class="blueTable">
+            <tr>
+                <th>Creation time</th>
+                <td>{{ object.creation_time }}</td>
+            </tr>
+            <tr>
+                <th>Regarding patient</th>
+                <td>{{ object.patient.first_name }} {{ object.patient.last_name }}</td>
+            </tr>
+            <tr>
+                <th>Entry</th>
+                <td>{{ object.entry }}</td>
+            </tr>
+            <tr>
+                <th>Written by</th>
+                <td>{{ object.doctor.first_name }} {{ object.doctor.last_name }}</td>
+            </tr>
+    </table>
+
+{% endblock %}

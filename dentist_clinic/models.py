@@ -4,7 +4,6 @@ from django.db import models
 
 # Create your models here.
 
-
 class Room(models.Model):
     name = models.CharField(max_length=255)
 
@@ -24,7 +23,7 @@ class Appointment(models.Model):
 
 
 class PatientHistory(models.Model):
-    description = models.TextField()
+    entry = models.TextField()
     creation_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='patient_history', null=True)
     doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='doctor_history', null=True)

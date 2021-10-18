@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from dentist_clinic.views import AboutContactView, AppointmentDeleteView, AppointmentFormView, AppointmentListByDoctorView, AppointmentListByPatientView, AppointmentListByRoomView, AppointmentUpdateView, DoctorHistoryListView, DoctorListView, HomeView, PatientHistoryDeleteView, PatientHistoryDetailView, PatientHistoryFormView, PatientHistoryListView, PatientHistoryUpdateView, PatientListView, RoomListView, UserFormView, UserLoginView, UserLogoutView
+from dentist_clinic.views import AboutContactView, AppointmentDeleteView, AppointmentFormView, AppointmentListByDoctorView, AppointmentListByPatientView, AppointmentListByRoomView, AppointmentUpdateView, DoctorHistoryListView, DoctorListView, HomeView, PatientHistoryDeleteView, PatientHistoryDetailView, PatientHistoryFormView, PatientHistoryListView, PatientHistoryUpdateView, PatientListView, RoomListView, UserDetailView, UserFormView, UserLoginView, UserLogoutView, UserUpdateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,7 +23,9 @@ urlpatterns = [
     path('login/', include('django.contrib.auth.urls')),
     path('login/', UserLoginView.as_view(), name='login-user'),
     path('logout/', UserLogoutView.as_view(), name='logout-user'),
-    path('register/user', UserFormView.as_view(), name='register-user'),
+    path('register/', UserFormView.as_view(), name='register-user'),
+    path('profile/', UserDetailView.as_view(), name='profile-user'),
+    path('profile/update/', UserUpdateView.as_view(), name='update-user'),
     path('about-contact/', AboutContactView.as_view(), name='about-contact'),
     path('patient/<int:pk>/appointments/new/', AppointmentFormView.as_view(), name='appointment-form'),
     path('patient/<int:pk>/appointments/', AppointmentListByPatientView.as_view(), name='appointment-list-by-patient'),

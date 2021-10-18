@@ -1,45 +1,58 @@
 {% load auth_extras %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
     <title>Dentist Clinic</title>
 </head>
 <body>
     <header>
-        <div>
-            <a href="{% url 'home' %}">Home page</a>
+        <div class="container-fluid" id="header">
+            <a href="{% url 'home' %}" class="myButton">Home page</a>
+            <a href="{% url 'about-contact' %}" class="myButton">About/Contact</a>
             {% if not user.is_authenticated %}
-                <a href="{% url 'login-user' %}">Log in</a>
-                <a href="{% url 'register-user' %}">Register</a>
+                <div style="display: flex; justify-content: flex-end">
+                    <a href="{% url 'login-user' %}" class="myButton">Log in</a>
+                    <a href="{% url 'register-user' %}" class="myButton">Register</a>
+                </div>
             {% else %}
                 {% if request.user|has_group:"Doctor" %}
-                    <p>{{ user.first_name }} {{ user.last_name }}</p>
-                    <a href="{% url 'appointment-list-by-doctor' user.pk %}">Appointments</a>
-                    <a href="{% url 'register-user' %}">New Patient</a>
-                    <a href="{% url 'patient-list' %}">Patients</a>
-                    <a href="{% url 'doctor-list' %}">Doctors</a>
-                    <a href="{% url 'room-list' %}">Rooms</a>
-                    <a href="{% url 'doctor-history-list' user.pk %}">Patient histories</a>
-                    <a href="{% url 'logout-user' %}">Log out</a>
+                    <a href="{% url 'appointment-list-by-doctor' user.pk %}" class="myButton">Appointments</a>
+                    <a href="{% url 'register-user' %}" class="myButton">New Patient</a>
+                    <a href="{% url 'patient-list' %}" class="myButton">Patients</a>
+                    <a href="{% url 'doctor-list' %}" class="myButton">Doctors</a>
+                    <a href="{% url 'room-list' %}" class="myButton">Rooms</a>
+                    <a href="{% url 'doctor-history-list' user.pk %}" class="myButton">Patient histories</a>
+                    <div style="display: flex; justify-content: flex-end">
+                        <h6>Logged user: {{ user.first_name }} {{ user.last_name }} </h6>
+                        <a href="{% url 'logout-user' %}" class="myButton">Log out</a>
+                    </div>
                 {% elif request.user|has_group:"Patient" %}
-                    <p>{{ user.first_name }} {{ user.last_name }}</p>
-                    <a href="{% url 'appointment-list-by-patient' user.pk %}">Appointments</a>
-                    <a href="{% url 'appointment-form' user.pk %}">New Appointment</a>
-                    <a href="{% url 'patient-history-list' user.pk %}">Patient history</a>
-                    <a href="{% url 'logout-user' %}">Log out</a>
+                    <a href="{% url 'appointment-list-by-patient' user.pk %}" class="myButton">Appointments</a>
+                    <a href="{% url 'appointment-form' user.pk %}" class="myButton">New Appointment</a>
+                    <a href="{% url 'patient-history-list' user.pk %}" class="myButton">Patient history</a>
+                    <div style="display: flex; justify-content: flex-end">
+                        <h6>Logged user: {{ user.first_name }} {{ user.last_name }} </h6>
+                        <a href="{% url 'logout-user' %}" class="myButton">Log out</a>
+                    </div>
                 {% endif %}
             {% endif %}
-
         </div>
     </header>
-
-    {% block content %}
-    {% endblock %}
+    <div class="container-fluid" id="content">
+        {% block content %}
+        {% endblock %}
+    </div>
 
     <footer>
-        <p>Aleksander P. Dentist Clinic 2021</p>
-        <a href="{% url 'about-contact' %}">About us / Contact info</a>
+        <div class="container-fluid" id="footer">
+            <p><b>Aleksander P. Dentist Clinic 2021</b></p>
+        </div>
     </footer>
 
 </body>

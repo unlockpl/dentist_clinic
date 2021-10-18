@@ -189,12 +189,19 @@ class PatientHistoryDeleteView(DoctorUserMixin, DeleteView):
     success_url = reverse_lazy('home')
     template_name = 'home.html'
 
-    def get_object(self):
-        return PatientHistory.objects.get(pk=self.kwargs['pk'])
-
 
 class PatientHistoryDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = PatientHistory
+    template_name = 'history-details.html'
 
     def test_func(self):
         history = PatientHistory.objects.get(pk=self.kwargs['pk'])
         return self.request.user.groups.filter(name='Doctor').exists() or self.request.user == history.patient
+
+
+class UserUpdateView(View):
+    pass
+
+
+class UserDetailView(View):
+    pass
