@@ -1,14 +1,14 @@
-from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, DeleteView, DetailView, FormView, ListView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 from django.contrib import messages
 
 from dentist_clinic.models import Appointment, PatientHistory, Procedure, Room, UserData
-from dentist_clinic.forms import UserDataModelForm, UserModelForm
+from dentist_clinic.forms import AppointmentModelForm, PatientHistoryModelForm, UserDataModelForm, UserModelForm
 
 
 # Create your views here.
@@ -29,8 +29,14 @@ class AboutContactView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        return UserData.objects.filter(user__groups=Group.objects.get(name='Doctor'))\
+        return UserData.objects.filter(user__groups=Group.objects.get(name='Doctor')) \
             .order_by('user__last_name')
+
+
+class ProcedureListView(ListView):
+    model = Procedure
+    template_name = 'lists/procedure-list.html'
+    paginate_by = 5
 
 
 class UserLoginView(LoginView):
@@ -46,17 +52,20 @@ class UserLogoutView(LogoutView):
 class UserFormView(View):
     def get(self, request):
         context = {
-            'userform': UserModelForm,
-            'userdataform': UserDataModelForm
+            'userform': UserModelForm(),
+            'userdataform': UserDataModelForm(),
         }
         return render(request, 'forms/profile-form.html', context)
 
     def post(self, request):
-        user = UserModelForm(request.POST)
-        user_data = UserDataModelForm(request.POST)
+        user_form = UserModelForm(request.POST)
+        user_data_form = UserDataModelForm(request.POST)
 
-        if user.is_valid() and user_data.is_valid():
+        if user_form.is_valid() and user_data_form.is_valid():
+            user = user_form.save(commit=False)
+            user.set_password(user_form.cleaned_data['password'])
             user.save()
+            user_data = user_data_form.save(commit=False)
             user_data.user = user
             user_data.save()
             messages.success(request, "OK")
@@ -66,12 +75,36 @@ class UserFormView(View):
         return redirect('home')
 
 
-class AppointmentFormView(View):
-    pass
+class AppointmentFormView(CreateView):
+    model = Appointment
+    form_class = AppointmentModelForm
+    template_name = 'forms/appointment-form.html'
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.patient_id = self.kwargs['pk']
+        for room in Room.objects.all():
+            if not Appointment.objects.filter(room=room).filter(date=self.kwargs['date']):
+                obj.room = room
+                break
+        self.object = obj
+        return redirect(self.get_success_url())
 
 
-class PatientHistoryFormView(View):
-    pass
+class PatientHistoryFormView(CreateView):
+    model = PatientHistory
+    form_class = PatientHistoryModelForm
+    template_name = 'forms/history-form.html'
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.patient_id = self.kwargs['pk']
+        obj.doctor = self.request.user
+        obj.save()
+        self.object = obj
+        return redirect(self.get_success_url())
 
 
 class DoctorListView(DoctorUserMixin, ListView):
@@ -80,7 +113,7 @@ class DoctorListView(DoctorUserMixin, ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        return UserData.objects.filter(user__groups=Group.objects.get(name='Doctor'))\
+        return UserData.objects.filter(user__groups=Group.objects.get(name='Doctor')) \
             .order_by('user__last_name')
 
 
@@ -90,7 +123,7 @@ class PatientListView(DoctorUserMixin, ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        return UserData.objects.filter(user__groups=Group.objects.get(name='Patient'))\
+        return UserData.objects.filter(user__groups=Group.objects.get(name='Patient')) \
             .order_by('user__last_name')
 
 

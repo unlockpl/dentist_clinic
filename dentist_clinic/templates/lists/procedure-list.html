@@ -1,34 +1,16 @@
 {% extends 'base.html' %}
-{% block title %}List of patients{% endblock %}
+{% block title %}Our services{% endblock %}
 {% block content %}
-    <h2>List of patients</h2>
+    <h2>List and pricing of offered procedures</h2>
     <table class="blueTable">
         <tr>
-            <th>First name}</th>
-            <th>Last name</th>
-            <th>E-mail address</th>
-            <th>Phone number</th>
-            <th>Address</th>
+            <th>Procedure</th>
+            <th>Price</th>
         </tr>
         {% for item in object_list %}
             <tr>
-                <td>{{ item.user.first_name }}</td>
-                <td>{{ item.user.last_name }}</td>
-                <td>{{ item.user.email }}</td>
-                <td>{{ item.phone }}</td>
-                <td>{{ item.address }}</td>
-                <td>
-                    <a href="{% url 'patient-history-form' pk=item.user.pk %}" class="redButton">New history entry</a>
-                </td>
-                <td>
-                    <a href="{% url 'appointment-form' pk=item.user.pk %}" class="redButton">New appointment</a>
-                </td>
-                <td>
-                    <a href="{% url 'appointment-list-by-patient' pk=item.user.pk %}" class="blueButton">Appointments</a>
-                </td>
-                <td>
-                    <a href="{% url 'patient-history-list' pk=item.user.pk %}" class="blueButton">History</a>
-                </td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.price }}</td>
             </tr>
         {% endfor %}
         {% if is_paginated %}

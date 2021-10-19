@@ -1,6 +1,14 @@
+import re
+
 from django import forms
-from django.contrib.auth.models import User
-from dentist_clinic.models import Appointment, UserData
+from django.contrib.auth.models import User, Group
+from django.core.exceptions import ValidationError
+
+from dentist_clinic.models import Appointment, PatientHistory, Room, UserData
+
+
+def get_procedures():
+    return User.objects.filter(groups="Doctor")
 
 
 class UserModelForm(forms.ModelForm):
@@ -34,4 +42,70 @@ class UserDataModelForm(forms.ModelForm):
             'address': 'Full address'
         }
 
+    def clean(self):
+        data = super().clean()
+        pattern = re.compile("^\d+$")
+        if not pattern.match(data.get('phone')):
+            raise ValidationError("Only numeric values accepted in the phone field")
+        return data
 
+
+class AppointmentModelForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['doctor'].queryset = User.objects.filter(groups__in=Group.objects.filter(name="Doctor"))
+
+
+    class Meta:
+        model = Appointment
+        fields = (
+            'date',
+            'doctor',
+            'procedure'
+        )
+        labels = {
+            'date': 'Date and time',
+            'doctor': 'Doctor',
+            'procedure': 'Procedure'
+        }
+
+
+    def clean(self):
+
+        data = super().clean()
+        date = data.get('date')
+        doctor = data.get('doctor')
+        procedure = data.get('procedure')
+
+        if not procedure.doctors.filter(doctor=doctor):
+            raise ValidationError("This doctor cannot perform this procedure")
+        # procedure_check = False
+        # for item in procedure.doctors.all():
+        #     if item == doctor:
+        #         procedure_check = True
+        # if not procedure_check:
+        #     raise ValidationError("This doctor cannot perform this procedure")
+
+        if Appointment.objects.filter(doctor=doctor).filter(date=date):
+            raise ValidationError("This doctor is not available at this time")
+
+        room_check = False
+        rooms = Room.objects.all()
+        for room in rooms:
+            if not Appointment.objects.filter(room=room).filter(date=date):
+                room_check = True
+                break
+        if not room_check:
+            raise ValidationError("No rooms available at this time")
+
+
+class PatientHistoryModelForm(forms.ModelForm):
+    class Meta:
+        model = PatientHistory
+        fields = (
+            'entry',
+        )
+        labels = {
+            'entry': 'Entry',
+        }

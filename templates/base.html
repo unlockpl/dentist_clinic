@@ -15,6 +15,7 @@
         <div class="container-fluid" id="header">
             <a href="{% url 'home' %}" class="myButton">Home page</a>
             <a href="{% url 'about-contact' %}" class="myButton">About/Contact</a>
+            <a href="{% url 'procedure-list' %}" class="myButton">Services</a>
             {% if not user.is_authenticated %}
                 <div style="display: flex; justify-content: flex-end">
                     <a href="{% url 'login-user' %}" class="myButton">Log in</a>

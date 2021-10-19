@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from dentist_clinic.views import AboutContactView, AppointmentDeleteView, AppointmentFormView, AppointmentListByDoctorView, AppointmentListByPatientView, AppointmentListByRoomView, AppointmentUpdateView, DoctorHistoryListView, DoctorListView, HomeView, PatientHistoryDeleteView, PatientHistoryDetailView, PatientHistoryFormView, PatientHistoryListView, PatientHistoryUpdateView, PatientListView, RoomListView, UserDetailView, UserFormView, UserLoginView, UserLogoutView, UserUpdateView
+from dentist_clinic.views import AboutContactView, AppointmentDeleteView, AppointmentFormView, AppointmentListByDoctorView, AppointmentListByPatientView, AppointmentListByRoomView, AppointmentUpdateView, DoctorHistoryListView, DoctorListView, HomeView, PatientHistoryDeleteView, PatientHistoryDetailView, PatientHistoryFormView, PatientHistoryListView, PatientHistoryUpdateView, PatientListView, ProcedureListView, RoomListView, UserDetailView, UserFormView, UserLoginView, UserLogoutView, UserUpdateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +27,7 @@ urlpatterns = [
     path('profile/', UserDetailView.as_view(), name='profile-user'),
     path('profile/update/', UserUpdateView.as_view(), name='update-user'),
     path('about-contact/', AboutContactView.as_view(), name='about-contact'),
+    path('services/', ProcedureListView.as_view(), name='procedure-list'),
     path('patient/<int:pk>/appointments/new/', AppointmentFormView.as_view(), name='appointment-form'),
     path('patient/<int:pk>/appointments/', AppointmentListByPatientView.as_view(), name='appointment-list-by-patient'),
     path('doctor/<int:pk>/appointments/', AppointmentListByDoctorView.as_view(), name='appointment-list-by-doctor'),
