@@ -7,11 +7,12 @@ from django.core.exceptions import ValidationError
 from dentist_clinic.models import Appointment, PatientHistory, Room, UserData
 
 
-def get_procedures():
-    return User.objects.filter(groups="Doctor")
-
-
 class UserModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(UserModelForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs['placeholder'] = 'username'
+        self.fields['password'].widget.attrs['placeholder'] = 'password'
+
     class Meta:
         model = User
         fields = (
@@ -56,7 +57,6 @@ class AppointmentModelForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['doctor'].queryset = User.objects.filter(groups__in=Group.objects.filter(name="Doctor"))
 
-
     class Meta:
         model = Appointment
         fields = (
@@ -70,7 +70,6 @@ class AppointmentModelForm(forms.ModelForm):
             'procedure': 'Procedure'
         }
 
-
     def clean(self):
 
         data = super().clean()
@@ -78,21 +77,20 @@ class AppointmentModelForm(forms.ModelForm):
         doctor = data.get('doctor')
         procedure = data.get('procedure')
 
-        if not procedure.doctors.filter(doctor=doctor):
-            raise ValidationError("This doctor cannot perform this procedure")
-        # procedure_check = False
-        # for item in procedure.doctors.all():
-        #     if item == doctor:
-        #         procedure_check = True
-        # if not procedure_check:
+        # if doctor not in procedure.doctors.all:
         #     raise ValidationError("This doctor cannot perform this procedure")
+        procedure_check = False
+        for item in procedure.doctors.all():
+            if item == doctor:
+                procedure_check = True
+        if not procedure_check:
+            raise ValidationError("This doctor cannot perform this procedure")
 
         if Appointment.objects.filter(doctor=doctor).filter(date=date):
             raise ValidationError("This doctor is not available at this time")
 
         room_check = False
-        rooms = Room.objects.all()
-        for room in rooms:
+        for room in Room.objects.all():
             if not Appointment.objects.filter(room=room).filter(date=date):
                 room_check = True
                 break

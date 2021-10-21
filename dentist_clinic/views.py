@@ -40,7 +40,7 @@ class ProcedureListView(ListView):
 
 
 class UserLoginView(LoginView):
-    template_name = 'login.html'
+    template_name = 'registration/login.html'
     redirect_authenticated_user = True
     redirect_field_name = 'home'
 
@@ -65,6 +65,9 @@ class UserFormView(View):
             user = user_form.save(commit=False)
             user.set_password(user_form.cleaned_data['password'])
             user.save()
+            user.groups.add(Group.objects.get(name="Patient"))
+            user.save()
+            user_form.save_m2m()
             user_data = user_data_form.save(commit=False)
             user_data.user = user
             user_data.save()
@@ -85,9 +88,10 @@ class AppointmentFormView(CreateView):
         obj = form.save(commit=False)
         obj.patient_id = self.kwargs['pk']
         for room in Room.objects.all():
-            if not Appointment.objects.filter(room=room).filter(date=self.kwargs['date']):
+            if not Appointment.objects.filter(room=room).filter(date=obj.date):
                 obj.room = room
                 break
+        obj.save()
         self.object = obj
         return redirect(self.get_success_url())
 
@@ -214,6 +218,25 @@ class DoctorHistoryListView(DoctorUserMixin, ListView):
 
 
 class AppointmentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Appointment
+    template_name = 'forms/update.html'
+    form_class = AppointmentModelForm
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, **kwargs):
+        context = super(AppointmentUpdateView, self).get_context_data(**kwargs)
+        context['header'] = "Update patient history"
+        return context
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        for room in Room.objects.all():
+            if not Appointment.objects.filter(room=room).filter(date=obj.date):
+                obj.room = room
+                break
+        obj.save()
+        self.object = obj
+        return redirect(self.get_success_url())
 
     def test_func(self):
         appointment = Appointment.objects.get(pk=self.kwargs['pk'])
@@ -231,7 +254,15 @@ class AppointmentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
 
 
 class PatientHistoryUpdateView(DoctorUserMixin, UpdateView):
-    pass
+    model = PatientHistory
+    template_name = 'forms/update.html'
+    form_class = PatientHistoryModelForm
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, **kwargs):
+        context = super(PatientHistoryUpdateView, self).get_context_data(**kwargs)
+        context['header'] = "Update patient history"
+        return context
 
 
 class PatientHistoryDeleteView(DoctorUserMixin, DeleteView):
@@ -250,7 +281,20 @@ class PatientHistoryDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
 
 
 class UserUpdateView(LoginRequiredMixin, View):
-    pass
+
+    def get(self, request):
+        user = self.request.user
+        context = {
+            'user': user,
+            'user_data': UserData.objects.get(user=user),
+            'user_form': UserModelForm(),
+            'user_data_form': UserDataModelForm(),
+        }
+        return render(request, 'forms/update-user.html', context)
+
+    def post(self, request):
+        pass
+
 
 
 class UserDetailView(LoginRequiredMixin, View):
