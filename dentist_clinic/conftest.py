@@ -1,7 +1,8 @@
 import pytest
 from dentist_clinic.models import Room, Procedure, Appointment, PatientHistory, UserData
 from django.contrib.auth.models import User, Group
-from datetime import datetime
+from django.utils import timezone
+import pytz
 
 @pytest.fixture
 def user():
@@ -38,22 +39,25 @@ def rooms():
 
 @pytest.fixture
 def procedure(doctors):
-    x = 'x'
-    return Procedure.objects.create(name=x, price=x, doctors=doctors)
+    obj = Procedure.objects.create(name='x', price=1)
+    obj.doctors.set(doctors)
+    return obj
 
 
 @pytest.fixture
 def procedures(doctors):
     test_list = []
     for i in range(10):
-        test_list.append(Procedure.objects.create(name=i, price=i, doctors=doctors))
+        obj = Procedure.objects.create(name=i, price=i)
+        obj.doctors.set(doctors)
+        test_list.append(obj)
     return test_list
 
 
 @pytest.fixture
 def appointment(room, patient, doctor, procedure):
     return Appointment.objects.create(
-        date=datetime.now(),
+        date=timezone.now(),
         room=room,
         patient=patient,
         doctor=doctor,
@@ -66,7 +70,7 @@ def appointments(rooms, patients, doctors, procedures):
     test_list = []
     for i in range(10):
         test_list.append(Appointment.objects.create(
-            date=datetime.now(),
+            date=timezone.now(),
             room=rooms[i],
             patient=patients[i],
             doctor=doctors[i],
@@ -79,7 +83,7 @@ def appointments(rooms, patients, doctors, procedures):
 def patient_history(patient, doctor):
     return PatientHistory.objects.create(
         entry='x',
-        creation_time=datetime.now(),
+        creation_time=timezone.now(),
         patient=patient,
         doctor=doctor,
     )
@@ -91,7 +95,7 @@ def patient_histories(patients, doctors):
     for i in range(10):
         test_list.append(PatientHistory.objects.create(
             entry=i,
-            creation_time=datetime.now(),
+            creation_time=timezone.now(),
             patient=patients[i],
             doctor=doctors[i],
         ))
@@ -103,6 +107,15 @@ def doctor(doctor_group):
     user = User.objects.create(username='x')
     user.groups.add(doctor_group)
     return user
+
+
+@pytest.fixture
+def doctor_data(doctor):
+    return UserData.objects.create(
+        phone='12345',
+        address='test_address',
+        user=doctor,
+    )
 
 
 @pytest.fixture
@@ -123,9 +136,19 @@ def patient(patient_group):
 
 
 @pytest.fixture
+def patient_data(patient):
+    return UserData.objects.create(
+        phone='12345',
+        address='test_address',
+        user=patient,
+    )
+
+
+
+@pytest.fixture
 def patients(patient_group):
     test_list = []
-    for i in range(10):
+    for i in range(10, 20):
         user = User.objects.create(username=i)
         user.groups.add(patient_group)
         test_list.append(user)

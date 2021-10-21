@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView
@@ -5,13 +7,12 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
-from django.contrib import messages
 
 from dentist_clinic.models import Appointment, PatientHistory, Procedure, Room, UserData
 from dentist_clinic.forms import AppointmentModelForm, PatientHistoryModelForm, UserDataModelForm, UserModelForm
 
-
 # Create your views here.
+
 
 class DoctorUserMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
@@ -70,7 +71,6 @@ class UserFormView(View):
             user_data = user_data_form.save(commit=False)
             user_data.user = user
             user_data.save()
-            messages.success(request, "OK")
         else:
             context = {
                 'user_form': user_form,
@@ -124,7 +124,7 @@ class DoctorListView(DoctorUserMixin, ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        return UserData.objects.filter(user__groups=Group.objects.get(name='Doctor')) \
+        return UserData.objects.filter(user__groups__in=Group.objects.filter(name='Doctor')) \
             .order_by('user__last_name')
 
 
@@ -134,7 +134,7 @@ class PatientListView(DoctorUserMixin, ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        return UserData.objects.filter(user__groups=Group.objects.get(name='Patient')) \
+        return UserData.objects.filter(user__groups__in=Group.objects.filter(name='Patient')) \
             .order_by('user__last_name')
 
 
@@ -300,7 +300,27 @@ class UserUpdateView(LoginRequiredMixin, View):
         return render(request, 'forms/update-user.html', context)
 
     def post(self, request):
-        pass
+        user = self.request.user
+        user_data = UserData.objects.get(user=user)
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.email = request.POST.get('email')
+        user_data.phone = request.POST.get('phone')
+        user.address = request.POST.get('address')
+
+        pattern_email = re.compile(
+            """(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])""")
+        pattern_phone = re.compile("^\d+$")
+        if pattern_email.match(user.email) and pattern_phone.match(user_data.phone):
+            user.save()
+            user_data.save()
+            return redirect(reverse_lazy('home'))
+        else:
+            context = {
+                'user': user,
+                'user_data': user_data,
+            }
+            return render(request, 'forms/update-user.html', context)
 
 
 class UserDetailView(LoginRequiredMixin, View):
@@ -309,6 +329,11 @@ class UserDetailView(LoginRequiredMixin, View):
         user_data = UserData.objects.get(user=user)
         context = {
             'user': user,
-            'user_data': user_data
+            'user_data': user_data,
         }
         return render(request, 'details/profile-details.html', context)
+
+
+
+
+
