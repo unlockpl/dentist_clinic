@@ -8,10 +8,6 @@ from dentist_clinic.models import Appointment, PatientHistory, Room, UserData
 
 
 class UserModelForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(UserModelForm, self).__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs['placeholder'] = 'username'
-        self.fields['password'].widget.attrs['placeholder'] = 'password'
 
     class Meta:
         model = User

@@ -18,6 +18,9 @@ class Procedure(models.Model):
     price = models.FloatField()
     doctors = models.ManyToManyField(User)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 

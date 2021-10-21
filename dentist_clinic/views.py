@@ -52,8 +52,8 @@ class UserLogoutView(LogoutView):
 class UserFormView(View):
     def get(self, request):
         context = {
-            'userform': UserModelForm(),
-            'userdataform': UserDataModelForm(),
+            'user_form': UserModelForm(),
+            'user_data_form': UserDataModelForm(),
         }
         return render(request, 'forms/profile-form.html', context)
 
@@ -67,18 +67,21 @@ class UserFormView(View):
             user.save()
             user.groups.add(Group.objects.get(name="Patient"))
             user.save()
-            user_form.save_m2m()
             user_data = user_data_form.save(commit=False)
             user_data.user = user
             user_data.save()
             messages.success(request, "OK")
         else:
-            messages.error(request, "error")
+            context = {
+                'user_form': user_form,
+                'user_data_form': user_data_form,
+            }
+            return render(request, 'forms/profile-form.html', context)
 
         return redirect('home')
 
 
-class AppointmentFormView(CreateView):
+class AppointmentFormView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Appointment
     form_class = AppointmentModelForm
     template_name = 'forms/appointment-form.html'
@@ -95,8 +98,12 @@ class AppointmentFormView(CreateView):
         self.object = obj
         return redirect(self.get_success_url())
 
+    def test_func(self):
+        return self.request.user.groups.filter(name='Doctor').exists() or self.request.user.pk == self.kwargs['pk']
 
-class PatientHistoryFormView(CreateView):
+
+
+class PatientHistoryFormView(DoctorUserMixin, CreateView):
     model = PatientHistory
     form_class = PatientHistoryModelForm
     template_name = 'forms/history-form.html'
@@ -294,7 +301,6 @@ class UserUpdateView(LoginRequiredMixin, View):
 
     def post(self, request):
         pass
-
 
 
 class UserDetailView(LoginRequiredMixin, View):

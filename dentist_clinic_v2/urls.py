@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from dentist_clinic.views import AboutContactView, AppointmentDeleteView, AppointmentFormView, AppointmentListByDoctorView, AppointmentListByPatientView, AppointmentListByRoomView, AppointmentUpdateView, DoctorHistoryListView, DoctorListView, HomeView, PatientHistoryDeleteView, PatientHistoryDetailView, PatientHistoryFormView, PatientHistoryListView, PatientHistoryUpdateView, PatientListView, ProcedureListView, RoomListView, UserDetailView, UserFormView, UserLoginView, UserLogoutView, UserUpdateView
+from dentist_clinic.views import AboutContactView, AppointmentDeleteView, AppointmentFormView, \
+    AppointmentListByDoctorView, AppointmentListByPatientView, AppointmentListByRoomView, AppointmentUpdateView, \
+    DoctorHistoryListView, DoctorListView, HomeView, PatientHistoryDeleteView, PatientHistoryDetailView, \
+    PatientHistoryFormView, PatientHistoryListView, PatientHistoryUpdateView, PatientListView, ProcedureListView, \
+    RoomListView, UserDetailView, UserFormView, UserLoginView, UserLogoutView, UserUpdateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -43,5 +47,4 @@ urlpatterns = [
     path('history/<int:pk>/update/', PatientHistoryUpdateView.as_view(), name='patient-history-update'),
     path('history/<int:pk>/delete/', PatientHistoryDeleteView.as_view(), name='patient-history-delete'),
     path('history/<int:pk>/details/', PatientHistoryDetailView.as_view(), name='patient-history-details'),
-
 ]

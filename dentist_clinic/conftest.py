@@ -15,17 +15,17 @@ def user():
 
 
 @pytest.fixture
-def user_data():
+def user_data(user):
     return UserData.objects.create(
         phone='12345',
         address='test_address',
-
+        user=user,
     )
 
 
 @pytest.fixture
 def room():
-    return Room.objects.create(name=i)
+    return Room.objects.create(name='x')
 
 
 @pytest.fixture
@@ -99,34 +99,44 @@ def patient_histories(patients, doctors):
 
 
 @pytest.fixture
-def doctor():
+def doctor(doctor_group):
     user = User.objects.create(username='x')
-    user.groups.add(Group.objects.get(name='Doctor'))
+    user.groups.add(doctor_group)
     return user
 
 
 @pytest.fixture
-def doctors():
+def doctors(doctor_group):
     test_list = []
     for i in range(10):
-        user = User.objects.create(username='i')
-        user.groups.add(Group.objects.get(name='Doctor'))
+        user = User.objects.create(username=i)
+        user.groups.add(doctor_group)
         test_list.append(user)
     return test_list
 
 
 @pytest.fixture
-def patient():
+def patient(patient_group):
     user = User.objects.create(username='y')
-    user.groups.add(Group.objects.get(name='Patient'))
+    user.groups.add(patient_group)
     return user
 
 
 @pytest.fixture
-def patients():
+def patients(patient_group):
     test_list = []
     for i in range(10):
-        user = User.objects.create(username='i')
-        user.groups.add(Group.objects.get(name='Patient'))
+        user = User.objects.create(username=i)
+        user.groups.add(patient_group)
         test_list.append(user)
     return test_list
+
+
+@pytest.fixture
+def doctor_group():
+    return Group.objects.create(name='Doctor')
+
+
+@pytest.fixture
+def patient_group():
+    return Group.objects.create(name='Patient')
