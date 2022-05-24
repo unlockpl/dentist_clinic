@@ -1,10 +1,10 @@
-from django.test import TestCase, Client
-import pytest
+from django.core.exceptions import ObjectDoesNotExist
+from django.test import Client
 from django.urls import reverse
+import pytest
 
-
-# Create your tests here.
 from dentist_clinic.conftest import *
+# Create your tests here.
 
 
 @pytest.mark.django_db
@@ -334,7 +334,7 @@ def test_list_room_not_logged_in():
     client = Client()
     response = client.get(reverse('room-list'))
     assert response.status_code == 302
-    
+
 
 @pytest.mark.django_db
 def test_update_appointment_doctor_logged_in(doctor, appointment):
@@ -365,38 +365,7 @@ def test_update_appointment_not_logged_in(appointment):
     client = Client()
     response = client.get(reverse('appointment-update', kwargs={'pk': appointment.pk}))
     assert response.status_code == 302
-    
-    
-@pytest.mark.django_db
-def test_update_appointment_doctor_logged_in(doctor, appointment):
-    client = Client()
-    client.force_login(doctor)
-    response = client.get(reverse('appointment-update', kwargs={'pk': appointment.pk}))
-    assert response.status_code == 200
 
-
-@pytest.mark.django_db
-def test_update_own_appointment_patient_logged_in(patient, appointment):
-    client = Client()
-    client.force_login(patient)
-    response = client.get(reverse('appointment-update', kwargs={'pk': appointment.pk}))
-    assert response.status_code == 200
-
-
-@pytest.mark.django_db
-def test_update_not_own_appointment_patient_logged_in(patient, patients, appointment):
-    client = Client()
-    client.force_login(patients[0])
-    response = client.get(reverse('appointment-update', kwargs={'pk': appointment.pk}))
-    assert response.status_code == 403
-
-
-@pytest.mark.django_db
-def test_update_appointment_not_logged_in(patient, appointment):
-    client = Client()
-    response = client.get(reverse('appointment-update', kwargs={'pk': appointment.pk}))
-    assert response.status_code == 302
-    
 
 @pytest.mark.django_db
 def test_delete_appointment_doctor_logged_in(doctor, appointment):
@@ -427,8 +396,8 @@ def test_delete_appointment_not_logged_in(appointment):
     client = Client()
     response = client.get(reverse('appointment-delete', kwargs={'pk': appointment.pk}))
     assert response.status_code == 302
-    
-    
+
+
 @pytest.mark.django_db
 def test_details_patient_history_doctor_logged_in(doctor, patient_history):
     client = Client()
@@ -458,7 +427,7 @@ def test_details_patient_history_not_logged_in(patient_history):
     client = Client()
     response = client.get(reverse('patient-history-details', kwargs={'pk': patient_history.pk}))
     assert response.status_code == 302
-    
+
 
 @pytest.mark.django_db
 def test_update_patient_history_doctor_logged_in(doctor, patient_history):
@@ -481,8 +450,8 @@ def test_update_patient_history_not_logged_in(patient_history):
     client = Client()
     response = client.get(reverse('patient-history-update', kwargs={'pk': patient_history.pk}))
     assert response.status_code == 302
-    
-    
+
+
 @pytest.mark.django_db
 def test_delete_patient_history_doctor_logged_in(doctor, patient_history):
     client = Client()
@@ -503,4 +472,109 @@ def test_delete_patient_history_patient_logged_in(patient, patient_history):
 def test_delete_patient_history_not_logged_in(patient_history):
     client = Client()
     response = client.get(reverse('patient-history-delete', kwargs={'pk': patient_history.pk}))
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_patient_history_list_get(doctor, patients, patient_histories):
+    client = Client()
+    client.force_login(doctor)
+    response = client.get(reverse('patient-history-list', kwargs={'pk': patients[0].pk}))
+    assert response.status_code == 200
+    object_list = response.context['object_list']
+    result = []
+    assert object_list.count() == len(result)
+    for item in patient_histories:
+        if item.patient == patients[0]:
+            result.append(item)
+    #uproscic listy
+    for item in result:
+        assert item in object_list
+
+
+@pytest.mark.django_db
+def test_doctor_history_list_get(doctors, patient_histories):
+    client = Client()
+    client.force_login(doctors[0])
+    response = client.get(reverse('doctor-history-list', kwargs={'pk': doctors[0].pk}))
+    assert response.status_code == 200
+    object_list = response.context['object_list']
+    result = []
+    for item in patient_histories:
+        if item.doctor == doctors[0]:
+            result.append(item)
+    assert object_list.count() == len(result)
+    for item in result:
+        assert item in object_list
+
+
+@pytest.mark.django_db
+def test_patient_history_details_get(doctor, patient_history):
+    client = Client()
+    client.force_login(doctor)
+    response = client.get(reverse('patient-history-details', kwargs={'pk': patient_history.pk}))
+    assert response.status_code == 200
+    obj = response.context['object']
+    assert obj == patient_history
+
+
+@pytest.mark.django_db
+def test_patient_history_delete_get(doctor, patient_history):
+    client = Client()
+    client.force_login(doctor)
+    response = client.get(reverse('patient-history-delete', kwargs={'pk': patient_history.pk}))
+    assert response.status_code == 200
+    obj = response.context['object']
+    assert obj == patient_history
+
+
+@pytest.mark.django_db
+def test_patient_history_delete_post(doctor, patient_history):
+    client = Client()
+    client.force_login(doctor)
+    response = client.post(reverse('patient-history-delete', kwargs={'pk': patient_history.pk}))
+    assert response.status_code == 302
+    with pytest.raises(PatientHistory.DoesNotExist):
+
+        PatientHistory.objects.get(pk=patient_history.pk)
+
+
+@pytest.mark.django_db
+def test_patient_history_form_get(doctor, patient):
+    client = Client()
+    client.force_login(doctor)
+    response = client.get(reverse('patient-history-form', kwargs={'pk': patient.pk}))
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_patient_history_form_post(doctor, patient, patient_history):
+    client = Client()
+    client.force_login(doctor)
+    data = {
+        'entry': 'abc'
+    }
+    response = client.post(reverse('patient-history-form', kwargs={'pk': patient.pk}), data=data)
+    assert response.status_code == 302
+    #sprawdzic czy istnieje
+
+
+@pytest.mark.django_db
+def test_patient_history_update_get(doctor, patient_history):
+    client = Client()
+    client.force_login(doctor)
+    response = client.get(reverse('patient-history-update', kwargs={'pk': patient_history.pk}))
+    assert response.status_code == 200
+    obj = response.context['object']
+    assert obj == patient_history
+
+
+@pytest.mark.django_db
+def test_patient_history_update_post(doctor, patient_history):
+    client = Client()
+    client.force_login(doctor)
+    data = {
+        'entry': 'abc'
+    }
+    response = client.post(reverse('patient-history-update', kwargs={'pk': patient_history.pk}), data=data)
     assert response.status_code == 302

@@ -8,7 +8,6 @@ from dentist_clinic.models import Appointment, PatientHistory, Room, UserData
 
 
 class UserModelForm(forms.ModelForm):
-
     class Meta:
         model = User
         fields = (
@@ -73,8 +72,6 @@ class AppointmentModelForm(forms.ModelForm):
         doctor = data.get('doctor')
         procedure = data.get('procedure')
 
-        # if doctor not in procedure.doctors.all:
-        #     raise ValidationError("This doctor cannot perform this procedure")
         procedure_check = False
         for item in procedure.doctors.all():
             if item == doctor:

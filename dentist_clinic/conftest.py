@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.utils import timezone
 import pytz
 
+
 @pytest.fixture
 def user():
     return User.objects.create(
@@ -142,7 +143,6 @@ def patient_data(patient):
         address='test_address',
         user=patient,
     )
-
 
 
 @pytest.fixture

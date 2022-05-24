@@ -11,6 +11,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from dentist_clinic.models import Appointment, PatientHistory, Procedure, Room, UserData
 from dentist_clinic.forms import AppointmentModelForm, PatientHistoryModelForm, UserDataModelForm, UserModelForm
 
+
 # Create your views here.
 
 
@@ -100,7 +101,6 @@ class AppointmentFormView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
     def test_func(self):
         return self.request.user.groups.filter(name='Doctor').exists() or self.request.user.pk == self.kwargs['pk']
-
 
 
 class PatientHistoryFormView(DoctorUserMixin, CreateView):
@@ -332,8 +332,3 @@ class UserDetailView(LoginRequiredMixin, View):
             'user_data': user_data,
         }
         return render(request, 'details/profile-details.html', context)
-
-
-
-
-
